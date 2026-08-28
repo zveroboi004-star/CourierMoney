@@ -1,0 +1,33 @@
+name: Build Courier Money APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download project ZIP
+        uses: actions/checkout@v4
+      - name: Unzip Android project
+        run: |
+          unzip -q CourierMoney.zip -d extracted
+          cp -R extracted/. .
+      - name: Make Gradle executable
+        run: chmod +x gradlew
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CourierMoney-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
